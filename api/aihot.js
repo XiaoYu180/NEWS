@@ -1,10 +1,11 @@
 export default async function handler(req, res) {
   try {
-    const url = new URL(req.url, `https://${req.headers.host}`)
-    const targetPath = url.pathname.replace(/^\/api\/aihot/, '')
-    const targetUrl = `https://aihot.virxact.com${targetPath}${url.search}`
+    const subpath = req.query.__path || ''
+    const params = new URLSearchParams(req.query)
+    params.delete('__path')
+    const qs = params.toString()
 
-    const r = await fetch(targetUrl, {
+    const r = await fetch(`https://aihot.virxact.com/${subpath}${qs ? '?' + qs : ''}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         Accept: 'application/json',
