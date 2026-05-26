@@ -49,6 +49,12 @@ export default defineConfig({
           })
         },
       },
+      '/api/youtube': {
+        target: 'https://pipedapi.kavin.rocks',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/youtube/, ''),
+        secure: false,
+      },
       '/api/ipgeo': {
         target: 'https://ipapi.co',
         changeOrigin: true,

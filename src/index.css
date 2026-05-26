@@ -323,6 +323,10 @@
     transition: filter 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
   }
 
+  .draggable-source-card:hover {
+    transform: rotate(-0.35deg) translate(-2px, -4px);
+  }
+
   .draggable-source-card:active {
     cursor: grabbing;
   }
@@ -335,21 +339,21 @@
     font-family: "Courier New", Courier, monospace;
     font-size: 0.65rem;
     font-weight: 700;
-    left: 0.85rem;
     letter-spacing: 0.08em;
     opacity: 0;
     padding: 0.18rem 0.35rem;
     pointer-events: none;
     position: absolute;
-    top: 0.85rem;
-    transform: rotate(-2deg) translateY(0.25rem);
+    right: 0.75rem;
+    top: -0.72rem;
+    transform: rotate(2deg) translateY(0.35rem) scale(0.96);
     transition: opacity 0.16s ease, transform 0.16s ease;
-    z-index: 5;
+    z-index: 12;
   }
 
   .draggable-source-card:hover::before {
     opacity: 1;
-    transform: rotate(-2deg) translateY(0);
+    transform: rotate(2deg) translateY(0) scale(1);
   }
 
   .draggable-source-card-active {

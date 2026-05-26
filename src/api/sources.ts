@@ -128,6 +128,30 @@ async function fetchGithubStories(): Promise<UnifiedStory[]> {
   }))
 }
 
+interface YouTubeItem {
+  url: string
+  title: string
+  uploaderName: string
+  views: number
+  uploaded: number
+}
+
+async function fetchYouTubeStories(): Promise<UnifiedStory[]> {
+  const res = await fetch('/api/youtube/trending?region=US')
+  if (!res.ok) throw new Error('获取 YouTube 热榜失败')
+  const items: YouTubeItem[] = await res.json()
+  return items.map((item) => ({
+    id: item.url,
+    title: item.title,
+    url: `https://www.youtube.com${item.url}`,
+    detailUrl: `https://www.youtube.com${item.url}`,
+    by: item.uploaderName,
+    score: item.views,
+    comments: 0,
+    time: Math.floor(item.uploaded / 1000),
+  }))
+}
+
 async function fetchAIHotStories(): Promise<UnifiedStory[]> {
   const res = await fetch('/api/aihot/api/public/items?mode=selected&take=30')
   if (!res.ok) throw new Error('获取 AI 动态失败')
@@ -180,6 +204,13 @@ export const newsSources: NewsSource[] = [
     description: '热门开源项目',
     color: '#6e7681',
     fetchStories: fetchGithubStories,
+  },
+  {
+    id: 'youtube',
+    name: 'YouTube 热榜',
+    description: '全美热门视频',
+    color: '#ff0000',
+    fetchStories: fetchYouTubeStories,
   },
   {
     id: 'aihot',

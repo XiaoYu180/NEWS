@@ -14,6 +14,8 @@ export function Footer() {
         {' + '}
         <span style={{ color: '#0066ff' }}>知乎</span>
         {' + '}
+        <span style={{ color: '#ff0000' }}>YouTube</span>
+        {' + '}
         <span style={{ color: '#6e7681' }}>GitHub</span>
         {' + '}
         <span style={{ color: '#10a37f' }}>AI动态</span>

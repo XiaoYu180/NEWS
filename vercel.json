@@ -4,6 +4,7 @@
   "rewrites": [
     { "source": "/api/bilibili/(.*)", "destination": "/api/bilibili?__path=$1" },
     { "source": "/api/aihot/(.*)", "destination": "/api/aihot?__path=$1" },
+    { "source": "/api/youtube/(.*)", "destination": "/api/youtube?__path=$1" },
     { "source": "/api/ipgeo/(.*)", "destination": "/api/ipgeo?__path=$1" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
