@@ -424,6 +424,14 @@ export function HomePage() {
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="https://xiaoyu180.cn"
+            className="mecha-panel portfolio-link-card px-4 py-2 font-mono text-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            作品集
+          </a>
           <WeekCalendar />
           <div className="mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }}>
             {weather.loading ? (

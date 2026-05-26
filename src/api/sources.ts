@@ -136,8 +136,12 @@ interface YouTubeItem {
   uploaded: number
 }
 
+const YOUTUBE_API = import.meta.env.DEV
+  ? 'https://news-beta-umber.vercel.app/api/youtube'
+  : '/api/youtube'
+
 async function fetchYouTubeStories(): Promise<UnifiedStory[]> {
-  const res = await fetch('/api/youtube/trending?region=US')
+  const res = await fetch(`${YOUTUBE_API}/trending?region=US`)
   if (!res.ok) throw new Error('获取 YouTube 热榜失败')
   const items: YouTubeItem[] = await res.json()
   return items.map((item) => ({
