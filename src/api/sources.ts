@@ -233,18 +233,18 @@ async function fetchAIHotStories(): Promise<UnifiedStory[]> {
 
 export const newsSources: NewsSource[] = [
   {
-    id: 'douyin',
-    name: '抖音热点',
-    description: '实时热搜榜',
-    color: '#ff2d55',
-    fetchStories: fetchDouyinStories,
-  },
-  {
     id: 'weibo',
     name: '微博热搜',
     description: '实时热搜榜',
     color: '#f97316',
     fetchStories: fetchWeiboStories,
+  },
+  {
+    id: 'douyin',
+    name: '抖音热点',
+    description: '实时热搜榜',
+    color: '#ff2d55',
+    fetchStories: fetchDouyinStories,
   },
   {
     id: 'baidu',
@@ -254,13 +254,6 @@ export const newsSources: NewsSource[] = [
     fetchStories: fetchBaiduStories,
   },
   {
-    id: 'zhihu',
-    name: '知乎热榜',
-    description: '实时热议话题',
-    color: '#0066ff',
-    fetchStories: fetchZhihuStories,
-  },
-  {
     id: 'bilibili',
     name: 'B站热榜',
     description: '全站热门视频',
@@ -268,18 +261,11 @@ export const newsSources: NewsSource[] = [
     fetchStories: fetchBilibiliStories,
   },
   {
-    id: 'wangyiyun',
-    name: '网易云音乐',
-    description: '热歌榜',
-    color: '#c62f2f',
-    fetchStories: fetchWangyiyunStories,
-  },
-  {
-    id: 'qqmusic',
-    name: 'QQ音乐',
-    description: '巅峰榜',
-    color: '#31c27c',
-    fetchStories: fetchQQMusicStories,
+    id: 'zhihu',
+    name: '知乎热榜',
+    description: '实时热议话题',
+    color: '#0066ff',
+    fetchStories: fetchZhihuStories,
   },
   {
     id: 'github',
@@ -294,5 +280,19 @@ export const newsSources: NewsSource[] = [
     description: 'AI 领域最新资讯',
     color: '#10a37f',
     fetchStories: fetchAIHotStories,
+  },
+  {
+    id: 'wangyiyun',
+    name: '网易云音乐',
+    description: '热歌榜',
+    color: '#c62f2f',
+    fetchStories: fetchWangyiyunStories,
+  },
+  {
+    id: 'qqmusic',
+    name: 'QQ音乐',
+    description: '巅峰榜',
+    color: '#31c27c',
+    fetchStories: fetchQQMusicStories,
   },
 ]
