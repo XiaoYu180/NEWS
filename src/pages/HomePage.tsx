@@ -423,16 +423,8 @@ export function HomePage() {
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <WeekCalendar />
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <SourceVisibilityControl
-            visibleSourceIds={visibleSourceIds}
-            onToggle={handleToggleSource}
-            onShowAll={handleShowAllSources}
-          />
-          <LayoutControl columnCount={columnCount} onChange={handleColumnChange} />
           <div className="mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }}>
             {weather.loading ? (
               <span style={{ color: 'var(--text)' }}>正在努力的获取天气信息中</span>
@@ -449,6 +441,14 @@ export function HomePage() {
               </>
             )}
           </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <SourceVisibilityControl
+            visibleSourceIds={visibleSourceIds}
+            onToggle={handleToggleSource}
+            onShowAll={handleShowAllSources}
+          />
+          <LayoutControl columnCount={columnCount} onChange={handleColumnChange} />
         </div>
       </div>
 

@@ -141,7 +141,7 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
 
 function SourceCardSkeleton({ color }: { color: string }) {
   return (
-    <div className="mecha-panel intel-card p-5">
+    <div className="mecha-panel intel-card p-5 flex h-full flex-col">
       <div className="mb-5 flex items-center gap-3">
         <span className="status-dot" style={{ color }} />
         <Skeleton className="h-5 w-28" />
@@ -166,7 +166,7 @@ export function SourceCard({ source }: { source: NewsSource }) {
   if (isLoading) return <SourceCardSkeleton color={source.color} />
 
   return (
-    <div className="mecha-panel intel-card p-5">
+    <div className="mecha-panel intel-card p-5 flex h-full flex-col">
       <div className="mb-5 flex items-start gap-3">
         <span style={{ color: source.color }}>
           <SourceLogo sourceId={source.id} size={22} />
@@ -188,7 +188,7 @@ export function SourceCard({ source }: { source: NewsSource }) {
       ) : !data || data.length === 0 ? (
         <EmptyState title="暂无信号" />
       ) : (
-        <div className="intel-list max-h-[500px] overflow-y-auto pr-1">
+        <div className="intel-list max-h-[500px] min-h-0 flex-1 overflow-y-auto pr-1">
           <ul className="space-y-3.5">
             {data.map((story, i) => (
               <CompactStory key={story.id} story={story} index={i} />
