@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+const proxyAgent = new HttpsProxyAgent('http://127.0.0.1:7890')
 
 export default defineConfig({
   plugins: [react()],
@@ -54,6 +57,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/youtube/, ''),
         secure: false,
+        agent: proxyAgent,
       },
       '/api/ipgeo': {
         target: 'https://ipapi.co',
