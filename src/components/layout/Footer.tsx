@@ -10,11 +10,15 @@ export function Footer() {
         {' + '}
         <span style={{ color: '#f97316' }}>微博</span>
         {' + '}
-        <span style={{ color: '#10b981' }}>B站</span>
+        <span style={{ color: '#2932e1' }}>百度</span>
         {' + '}
         <span style={{ color: '#0066ff' }}>知乎</span>
         {' + '}
-        <span style={{ color: '#ff0000' }}>YouTube</span>
+        <span style={{ color: '#10b981' }}>B站</span>
+        {' + '}
+        <span style={{ color: '#c62f2f' }}>网易云</span>
+        {' + '}
+        <span style={{ color: '#31c27c' }}>QQ音乐</span>
         {' + '}
         <span style={{ color: '#6e7681' }}>GitHub</span>
         {' + '}

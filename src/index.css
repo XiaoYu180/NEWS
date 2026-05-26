@@ -249,6 +249,10 @@
     padding: 0 0.35rem;
   }
 
+  .layout-control {
+    display: none;
+  }
+
   .layout-count-btn:hover,
   .layout-count-btn-active {
     background: var(--accent-orange);
@@ -398,6 +402,10 @@
   }
 
   @media (min-width: 1024px) {
+    .layout-control {
+      display: flex;
+    }
+
     .news-grid {
       grid-template-columns: var(--news-grid-columns);
     }

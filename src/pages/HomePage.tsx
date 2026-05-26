@@ -23,7 +23,7 @@ function LayoutControl({
   onChange: (value: number) => void
 }) {
   return (
-    <div className="mecha-panel flex items-center gap-2 px-3 py-2 font-mono text-xs">
+    <div className="layout-control mecha-panel flex items-center gap-2 px-3 py-2 font-mono text-xs">
       <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
         每行列数
       </span>
