@@ -335,6 +335,18 @@
     grid-template-columns: 1fr;
   }
 
+  @media (min-width: 640px) {
+    .news-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .news-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   .draggable-source-card {
     cursor: grab;
     position: relative;
@@ -445,7 +457,7 @@
   }
 
   .intel-card {
-    min-height: 560px;
+    min-height: 420px;
   }
 
   .intel-card:nth-child(odd) {

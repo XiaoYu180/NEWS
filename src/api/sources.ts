@@ -67,8 +67,8 @@ async function fetchDouyinStories(): Promise<UnifiedStory[]> {
   const json = await res.json()
   if (json.code !== 200 || !json.data?.list) throw new Error('抖音数据异常')
   const items: DouyinItem[] = json.data.list.slice(0, 30)
-  return items.map((item) => ({
-    id: String(item.rank),
+  return items.map((item, i) => ({
+    id: String(item.rank) + '_' + i,
     title: item.title,
     url: item.url,
     detailUrl: item.url,
@@ -85,8 +85,8 @@ async function fetchWeiboStories(): Promise<UnifiedStory[]> {
   const json = await res.json()
   if (json.code !== 200 || !json.data?.list) throw new Error('微博数据异常')
   const items: DouyinItem[] = json.data.list.slice(0, 30)
-  return items.map((item) => ({
-    id: String(item.rank),
+  return items.map((item, i) => ({
+    id: String(item.rank) + '_' + i,
     title: item.title,
     url: item.url,
     detailUrl: item.url,
@@ -121,8 +121,8 @@ async function fetchZhihuStories(): Promise<UnifiedStory[]> {
   const json = await res.json()
   if (json.code !== 200 || !json.data?.list) throw new Error('知乎数据异常')
   const items: DouyinItem[] = json.data.list.slice(0, 30)
-  return items.map((item) => ({
-    id: String(item.rank),
+  return items.map((item, i) => ({
+    id: String(item.rank) + '_' + i,
     title: item.title,
     url: item.url,
     detailUrl: item.url,
