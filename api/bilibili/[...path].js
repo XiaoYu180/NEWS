@@ -5,7 +5,11 @@ export default async function handler(req, res) {
     const targetUrl = `https://api.bilibili.com${targetPath}${url.search}`
 
     const r = await fetch(targetUrl, {
-      headers: { Referer: 'https://www.bilibili.com' },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        Referer: 'https://www.bilibili.com',
+        Origin: 'https://www.bilibili.com',
+      },
     })
     const data = await r.json()
     res.status(200).json(data)

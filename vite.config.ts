@@ -24,7 +24,9 @@ export default defineConfig({
         secure: false,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
             proxyReq.setHeader('Referer', 'https://www.bilibili.com')
+            proxyReq.setHeader('Origin', 'https://www.bilibili.com')
           })
         },
       },
