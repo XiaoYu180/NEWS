@@ -1,20 +1,6 @@
-export async function fetchStoryIds(type: string): Promise<number[]> {
-  const res = await fetch(`https://hacker-news.firebaseio.com/v0/${type}stories.json`)
-  if (!res.ok) throw new Error('获取新闻列表失败')
-  return res.json()
-}
-
 export async function fetchItem<T>(id: number): Promise<T> {
   const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
   if (!res.ok) throw new Error('获取内容失败')
-  return res.json()
-}
-
-export async function searchStories(query: string, page = 0) {
-  const res = await fetch(
-    `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&tags=story&page=${page}&hitsPerPage=30`,
-  )
-  if (!res.ok) throw new Error('搜索失败')
   return res.json()
 }
 

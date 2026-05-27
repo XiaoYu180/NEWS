@@ -46,4 +46,3 @@ export interface HNComment {
   deleted?: boolean
 }
 
-export type StoryType = 'top' | 'new' | 'best' | 'show' | 'ask' | 'job'
