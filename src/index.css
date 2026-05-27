@@ -189,6 +189,10 @@
     transform: rotate(-0.35deg) translate(-1px, -1px);
   }
 
+  .quote-card {
+    max-width: min(42rem, 100%);
+  }
+
   .calendar-trigger:hover {
     transform: rotate(-0.35deg) translate(-1px, -1px);
   }
@@ -420,6 +424,26 @@
 
     .news-grid {
       grid-template-columns: var(--news-grid-columns);
+    }
+  }
+
+  @media (max-width: 1320px) {
+    .top-toolbar {
+      align-items: flex-start;
+    }
+
+    .top-left-tools {
+      width: 100%;
+    }
+
+    .top-right-tools {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .quote-card {
+      flex: 1 1 28rem;
+      min-width: 18rem;
     }
   }
 

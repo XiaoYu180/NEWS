@@ -429,8 +429,8 @@ export function HomePage() {
 
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="top-toolbar mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div className="top-left-tools flex flex-wrap items-center gap-3">
           <a
             href="https://xiaoyu180.cn"
             className="mecha-panel portfolio-link-card px-4 py-2 font-mono text-sm"
@@ -440,7 +440,7 @@ export function HomePage() {
             作品集
           </a>
           <WeekCalendar />
-          <div className="mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }} title={quote?.from}>
+          <div className="quote-card mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }} title={quote?.from}>
             {!quote ? (
               <span style={{ color: 'var(--text)' }}>正在获取每日一言...</span>
             ) : (
@@ -460,13 +460,13 @@ export function HomePage() {
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-3">
+        <div className="top-right-tools flex flex-wrap items-center justify-end gap-3">
+          <LayoutControl columnCount={columnCount} onChange={handleColumnChange} />
           <SourceVisibilityControl
             visibleSourceIds={visibleSourceIds}
             onToggle={handleToggleSource}
             onShowAll={handleShowAllSources}
           />
-          <LayoutControl columnCount={columnCount} onChange={handleColumnChange} />
           <button
             type="button"
             onClick={toggleDark}
