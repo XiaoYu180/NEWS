@@ -79,10 +79,10 @@ export default defineConfig({
           })
         },
       },
-      '/api/ipgeo': {
-        target: 'https://ipapi.co',
+      '/api/book': {
+        target: 'https://gutendex.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ipgeo/, ''),
+        rewrite: (path) => path.replace(/^\/api\/book/, '/books'),
         secure: false,
       },
     },

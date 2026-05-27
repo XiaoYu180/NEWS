@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef, useMemo, type CSSProperties, type DragEvent } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, type CSSProperties, type DragEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { newsSources } from '../api/sources'
 import { SourceCard } from '../components/news/SourceCard'
-import { useWeather, weatherEmoji, weatherLabel } from '../hooks/useWeather'
+import { useDailyQuote } from '../hooks/useDailyQuote'
+import { useDarkMode } from '../hooks/useDarkMode'
 import { useHolidays } from '../hooks/useHolidays'
 
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
@@ -352,7 +354,12 @@ function WeekCalendar() {
 }
 
 export function HomePage() {
-  const weather = useWeather()
+  const quote = useDailyQuote()
+  const { dark, toggle: toggleDark } = useDarkMode()
+  const [quoteTip, setQuoteTip] = useState<{ x: number; y: number } | null>(null)
+  const showQuoteTip = useCallback((e: React.MouseEvent) => setQuoteTip({ x: e.clientX, y: e.clientY }), [])
+  const moveQuoteTip = useCallback((e: React.MouseEvent) => setQuoteTip((prev) => (prev ? { x: e.clientX, y: e.clientY } : null)), [])
+  const hideQuoteTip = useCallback(() => setQuoteTip(null), [])
   const [columnCount, setColumnCount] = useState(() => {
     const stored = localStorage.getItem('news-column-count')
     return clampColumnCount(stored ? Number(stored) : 5)
@@ -433,19 +440,22 @@ export function HomePage() {
             作品集
           </a>
           <WeekCalendar />
-          <div className="mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }}>
-            {weather.loading ? (
-              <span style={{ color: 'var(--text)' }}>正在努力的获取天气信息中</span>
-            ) : weather.error === 'permission' ? (
-              <span style={{ color: 'var(--text)' }}>未获取到权限</span>
-            ) : weather.error === 'failed' ? (
-              <span style={{ color: 'var(--text)' }}>未获取到天气信息</span>
+          <div className="mecha-panel flex items-center gap-2 px-4 py-2 font-mono text-sm" style={{ color: 'var(--accent-orange)' }} title={quote?.from}>
+            {!quote ? (
+              <span style={{ color: 'var(--text)' }}>正在获取每日一言...</span>
             ) : (
               <>
-                <span className="text-lg">{weatherEmoji(weather.code)}</span>
-                <span style={{ color: 'var(--text)' }}>{weather.city || '当前位置'}</span>
-                <span className="font-bold">{weather.tempMin}°~{weather.tempMax}°</span>
-                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{weatherLabel(weather.code)}</span>
+                <span className="text-lg">💬</span>
+                <span style={{ color: 'var(--text)' }}>每日一言</span>
+                <span
+                  className="font-bold max-w-xs truncate cursor-default"
+                  onMouseEnter={showQuoteTip}
+                  onMouseMove={moveQuoteTip}
+                  onMouseLeave={hideQuoteTip}
+                >
+                  {quote.text}
+                </span>
+                <span className="text-[10px] shrink-0" style={{ color: 'var(--text-muted)' }}>—— {quote.from}</span>
               </>
             )}
           </div>
@@ -457,6 +467,14 @@ export function HomePage() {
             onShowAll={handleShowAllSources}
           />
           <LayoutControl columnCount={columnCount} onChange={handleColumnChange} />
+          <button
+            type="button"
+            onClick={toggleDark}
+            className="mecha-btn text-xs"
+            title={dark ? '切换日间模式' : '切换深夜模式'}
+          >
+            {dark ? '☀' : '☾'}
+          </button>
         </div>
       </div>
 
@@ -509,6 +527,26 @@ export function HomePage() {
           未选择任何卡片
         </div>
       )}
+
+      {quoteTip && quote &&
+        createPortal(
+          <div
+            className="pointer-events-none fixed z-[9999] whitespace-pre-wrap rounded px-3 py-2 text-sm leading-relaxed shadow-lg"
+            style={{
+              maxWidth: 320,
+              left: quoteTip.x - 160,
+              top: quoteTip.y - 24,
+              transform: 'translateY(-100%)',
+              backgroundColor: 'var(--bg-panel)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+            }}
+          >
+            {quote.text}
+          </div>,
+          document.body,
+        )}
+
     </main>
   )
 }

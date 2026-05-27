@@ -6,7 +6,7 @@
     { "source": "/api/aihot/(.*)", "destination": "/api/aihot?__path=$1" },
     { "source": "/api/qqmusic/(.*)", "destination": "/api/qqmusic?__path=$1" },
     { "source": "/api/wangyiyun/(.*)", "destination": "/api/wangyiyun?__path=$1" },
-    { "source": "/api/ipgeo/(.*)", "destination": "/api/ipgeo?__path=$1" },
+
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
