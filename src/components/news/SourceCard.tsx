@@ -1,10 +1,39 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useSource } from '../../hooks/useSource'
 import { Skeleton } from '../ui/Skeleton'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { EmptyState } from '../ui/EmptyState'
 import type { NewsSource, UnifiedStory } from '../../types'
+
+function LogoImage({
+  src,
+  label,
+  size,
+  fallback,
+}: {
+  src: string
+  label: string
+  size: number
+  fallback: ReactNode
+}) {
+  const [failed, setFailed] = useState(false)
+
+  if (failed) return <>{fallback}</>
+
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-label={label}
+      width={size}
+      height={size}
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      style={{ display: 'block', height: size, objectFit: 'contain', width: size }}
+    />
+  )
+}
 
 function SourceLogo({ sourceId, size }: { sourceId: string; size?: number }) {
   const s = size ?? 18
@@ -57,6 +86,34 @@ function SourceLogo({ sourceId, size }: { sourceId: string; size?: number }) {
         <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4V7h4V3z"/>
         </svg>
+      )
+    case 'wallstreetcn':
+      return (
+        <LogoImage
+          src="https://www.google.com/s2/favicons?domain=wallstreetcn.com&sz=64"
+          label="华尔街见闻"
+          size={s}
+          fallback={
+            <svg width={s} height={s} viewBox="0 0 24 24" role="img" aria-label="华尔街见闻">
+              <rect width="24" height="24" rx="4" fill="#f59e0b" />
+              <path d="M5 6h14v3H5zM5 11h9v3H5zM5 16h14v3H5z" fill="#111827" />
+            </svg>
+          }
+        />
+      )
+    case 'yicai':
+      return (
+        <LogoImage
+          src="https://www.google.com/s2/favicons?domain=yicai.com&sz=64"
+          label="第一财经"
+          size={s}
+          fallback={
+            <svg width={s} height={s} viewBox="0 0 24 24" role="img" aria-label="第一财经">
+              <rect width="24" height="24" rx="4" fill="#0f766e" />
+              <path d="M6 6h12v3H6zM6 10.5h7v3H6zM6 15h12v3H6z" fill="#fff7d6" />
+            </svg>
+          }
+        />
       )
     case 'aihot':
       return (

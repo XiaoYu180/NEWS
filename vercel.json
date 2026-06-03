@@ -6,6 +6,8 @@
     { "source": "/api/aihot/(.*)", "destination": "/api/aihot?__path=$1" },
     { "source": "/api/qqmusic/(.*)", "destination": "/api/qqmusic?__path=$1" },
     { "source": "/api/wangyiyun/(.*)", "destination": "/api/wangyiyun?__path=$1" },
+    { "source": "/api/wallstreetcn/(.*)", "destination": "/api/wallstreetcn?__path=$1" },
+    { "source": "/api/yicai/(.*)", "destination": "/api/yicai?__path=$1" },
 
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

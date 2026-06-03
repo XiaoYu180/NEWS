@@ -16,13 +16,16 @@ export function useHolidays(years: number[]): HolidayData {
 
   useEffect(() => {
     let cancelled = false
+    const currentYear = new Date().getFullYear()
+    const availableYears = Array.from(new Set(years))
+      .filter((year) => Number.isInteger(year) && year <= currentYear)
 
     async function load() {
       const holidays = new Map<string, string>()
       const workdays = new Set<string>()
 
       const results = await Promise.allSettled(
-        years.map((year) =>
+        availableYears.map((year) =>
           fetch(`${API}/${year}.json`)
             .then((res) => (res.ok ? res.json() : null))
             .catch(() => null)

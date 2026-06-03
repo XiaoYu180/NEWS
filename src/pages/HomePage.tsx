@@ -5,6 +5,7 @@ import { SourceCard } from '../components/news/SourceCard'
 import { useDailyQuote } from '../hooks/useDailyQuote'
 import { useDarkMode } from '../hooks/useDarkMode'
 import { useHolidays } from '../hooks/useHolidays'
+import { CATEGORIES, type CategoryId } from '../types'
 
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -57,7 +58,8 @@ function getInitialVisibleSourceIds(): string[] {
     if (!Array.isArray(parsed)) return allIds
 
     const validIds = parsed.filter((id): id is string => allIds.includes(id))
-    return validIds.length > 0 ? validIds : allIds
+    const missingIds = allIds.filter((id) => !validIds.includes(id))
+    return validIds.length > 0 ? [...validIds, ...missingIds] : allIds
   } catch {
     return allIds
   }
@@ -97,10 +99,12 @@ function moveSourceBefore(sourceIds: string[], draggedId: string, targetId: stri
 function SourceVisibilityControl({
   visibleSourceIds,
   onToggle,
+  onToggleBatch,
   onShowAll,
 }: {
   visibleSourceIds: string[]
   onToggle: (sourceId: string) => void
+  onToggleBatch: (sourceIds: string[], visible: boolean) => void
   onShowAll: () => void
 }) {
   const [open, setOpen] = useState(false)
@@ -115,6 +119,13 @@ function SourceVisibilityControl({
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
+
+  const sourcesByCategory = useMemo(() => {
+    const map = new Map<CategoryId, typeof newsSources>()
+    for (const c of CATEGORIES) map.set(c.id, [])
+    for (const s of newsSources) map.get(s.category)!.push(s)
+    return map
+  }, [])
 
   return (
     <div ref={ref} className="source-select relative font-mono text-xs">
@@ -132,7 +143,7 @@ function SourceVisibilityControl({
       </button>
 
       {open && (
-        <div className="mecha-panel source-select-menu absolute right-0 top-full z-40 mt-2 p-3">
+        <div className="mecha-panel source-select-menu absolute right-0 top-full z-40 mt-2 p-3" style={{ minWidth: 220 }}>
           <div className="mb-2 flex items-center justify-between gap-3">
             <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
               选择要展示的卡片
@@ -141,27 +152,50 @@ function SourceVisibilityControl({
               全部
             </button>
           </div>
-          <div className="space-y-1.5">
-            {newsSources.map((source) => {
-              const active = visibleSourceIds.includes(source.id)
+          {CATEGORIES.map((cat) => {
+            const sources = sourcesByCategory.get(cat.id) ?? []
+            const allVisible = sources.every((s) => visibleSourceIds.includes(s.id))
 
-              return (
-                <button
-                  key={source.id}
-                  type="button"
-                  onClick={() => onToggle(source.id)}
-                  className={`source-option ${active ? 'source-option-active' : ''}`}
-                  aria-pressed={active}
-                >
-                  <span className="source-checkbox" aria-hidden="true">
-                    {active ? '✓' : ''}
+            return (
+              <div key={cat.id} className="mb-2">
+                <div className="mb-1 flex items-center justify-between border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+                  <span className="text-[11px] font-bold" style={{ color: 'var(--text)' }}>
+                    {cat.name}
                   </span>
-                  <span className="source-toggle-dot" style={{ background: source.color }} />
-                  <span>{source.name}</span>
-                </button>
-              )
-            })}
-          </div>
+                  <button
+                    type="button"
+                    className="source-reset-btn text-[10px]"
+                    onClick={() => {
+                      const ids = sources.map((s) => s.id)
+                      onToggleBatch(ids, !allVisible)
+                    }}
+                  >
+                    {allVisible ? '全不选' : '全选'}
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  {sources.map((source) => {
+                    const active = visibleSourceIds.includes(source.id)
+                    return (
+                      <button
+                        key={source.id}
+                        type="button"
+                        onClick={() => onToggle(source.id)}
+                        className={`source-option ${active ? 'source-option-active' : ''}`}
+                        aria-pressed={active}
+                      >
+                        <span className="source-checkbox" aria-hidden="true">
+                          {active ? '✓' : ''}
+                        </span>
+                        <span className="source-toggle-dot" style={{ background: source.color }} />
+                        <span>{source.name}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
@@ -175,11 +209,20 @@ function WeekCalendar() {
   const [viewMonth, setViewMonth] = useState(today.getMonth()) // 0-based
   const ref = useRef<HTMLDivElement>(null)
 
-  // Fetch holidays for viewed year + adjacent years
+  // Fetch only the years currently visible in the week strip or month view.
   const years = useMemo(() => {
     const y = new Set([today.getFullYear(), viewYear])
-    y.add(viewYear - 1)
-    y.add(viewYear + 1)
+    const dayOfWeek = today.getDay()
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    const weekStart = new Date(today)
+    weekStart.setDate(today.getDate() + mondayOffset)
+
+    for (let i = 0; i < 7; i += 1) {
+      const date = new Date(weekStart)
+      date.setDate(weekStart.getDate() + i)
+      y.add(date.getFullYear())
+    }
+
     return Array.from(y).sort()
   }, [viewYear])
   const { holidays: holidayMap, workdays: workdaySet } = useHolidays(years)
@@ -388,6 +431,13 @@ export function HomePage() {
     updateVisibleSourceIds(nextIds)
   }
 
+  const handleToggleCategory = (sourceIds: string[], visible: boolean) => {
+    const nextIds = visible
+      ? [...new Set([...visibleSourceIds, ...sourceIds])]
+      : visibleSourceIds.filter((id) => !sourceIds.includes(id))
+    updateVisibleSourceIds(nextIds)
+  }
+
   const handleShowAllSources = () => {
     updateVisibleSourceIds(newsSources.map((source) => source.id))
   }
@@ -465,6 +515,7 @@ export function HomePage() {
           <SourceVisibilityControl
             visibleSourceIds={visibleSourceIds}
             onToggle={handleToggleSource}
+            onToggleBatch={handleToggleCategory}
             onShowAll={handleShowAllSources}
           />
           <button

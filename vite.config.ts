@@ -42,6 +42,30 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/zhihu/, '/api/rebang/zhihu.php'),
         secure: false,
       },
+      '/api/wallstreetcn': {
+        target: 'https://api.wallstreetcn.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/wallstreetcn/, ''),
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            proxyReq.setHeader('Referer', 'https://wallstreetcn.com/')
+          })
+        },
+      },
+      '/api/yicai': {
+        target: 'https://www.yicai.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/yicai/, ''),
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            proxyReq.setHeader('Referer', 'https://www.yicai.com/')
+          })
+        },
+      },
       '/api/aihot': {
         target: 'https://aihot.virxact.com',
         changeOrigin: true,

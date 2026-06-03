@@ -231,12 +231,48 @@ async function fetchAIHotStories(): Promise<UnifiedStory[]> {
   }))
 }
 
+async function fetchWallstreetcnStories(): Promise<UnifiedStory[]> {
+  const res = await fetch('/api/wallstreetcn/apiv1/content/articles/hot?period=all')
+  if (!res.ok) throw new Error('获取华尔街见闻失败')
+  const json = await res.json()
+  if (json.code !== 20000) throw new Error('华尔街见闻数据异常')
+  const dayItems = json.data?.day_items ?? []
+  return dayItems.slice(0, 30).map((item: any) => ({
+    id: String(item.id),
+    title: item.title,
+    url: item.uri || `https://wallstreetcn.com/articles/${item.id}`,
+    detailUrl: item.uri || `https://wallstreetcn.com/articles/${item.id}`,
+    by: '热文',
+    score: item.pageviews ?? 0,
+    comments: item.comment_count ?? 0,
+    time: item.display_time ?? Math.floor(Date.now() / 1000),
+  }))
+}
+
+async function fetchYicaiStories(): Promise<UnifiedStory[]> {
+  const res = await fetch('/api/yicai/api/ajax/getlistbycid?cid=48')
+  if (!res.ok) throw new Error('获取第一财经失败')
+  const json = await res.json()
+  if (!Array.isArray(json) || json.length === 0) throw new Error('第一财经数据异常')
+  return json.slice(0, 30).map((item: any) => ({
+    id: String(item.NewsID),
+    title: item.NewsTitle,
+    url: item.ShareUrl || `https://www.yicai.com${item.url}`,
+    detailUrl: item.ShareUrl || `https://www.yicai.com${item.url}`,
+    by: item.NewsAuthor || '一财',
+    score: item.NewsHot ?? 0,
+    comments: item.CommentCount ?? 0,
+    time: Math.floor(new Date(item.CreateDate).getTime() / 1000),
+  }))
+}
+
 export const newsSources: NewsSource[] = [
   {
     id: 'weibo',
     name: '微博热搜',
     description: '实时热搜榜',
     color: '#f97316',
+    category: 'entertainment',
     fetchStories: fetchWeiboStories,
   },
   {
@@ -244,6 +280,7 @@ export const newsSources: NewsSource[] = [
     name: '抖音热点',
     description: '实时热搜榜',
     color: '#ff2d55',
+    category: 'entertainment',
     fetchStories: fetchDouyinStories,
   },
   {
@@ -251,6 +288,7 @@ export const newsSources: NewsSource[] = [
     name: '百度热搜',
     description: '实时热搜榜',
     color: '#2932e1',
+    category: 'entertainment',
     fetchStories: fetchBaiduStories,
   },
   {
@@ -258,6 +296,7 @@ export const newsSources: NewsSource[] = [
     name: 'B站热榜',
     description: '全站热门视频',
     color: '#10b981',
+    category: 'entertainment',
     fetchStories: fetchBilibiliStories,
   },
   {
@@ -265,6 +304,7 @@ export const newsSources: NewsSource[] = [
     name: '知乎热榜',
     description: '实时热议话题',
     color: '#0066ff',
+    category: 'tech',
     fetchStories: fetchZhihuStories,
   },
   {
@@ -272,6 +312,7 @@ export const newsSources: NewsSource[] = [
     name: 'GitHub 热榜',
     description: '热门开源项目',
     color: '#6e7681',
+    category: 'tech',
     fetchStories: fetchGithubStories,
   },
   {
@@ -279,13 +320,31 @@ export const newsSources: NewsSource[] = [
     name: 'AI 动态',
     description: 'AI 领域最新资讯',
     color: '#10a37f',
+    category: 'tech',
     fetchStories: fetchAIHotStories,
+  },
+  {
+    id: 'wallstreetcn',
+    name: '华尔街见闻',
+    description: '24小时热文榜',
+    color: '#d97706',
+    category: 'finance',
+    fetchStories: fetchWallstreetcnStories,
+  },
+  {
+    id: 'yicai',
+    name: '第一财经',
+    description: '财经热榜',
+    color: '#0f766e',
+    category: 'finance',
+    fetchStories: fetchYicaiStories,
   },
   {
     id: 'wangyiyun',
     name: '网易云音乐',
     description: '热歌榜',
     color: '#c62f2f',
+    category: 'music',
     fetchStories: fetchWangyiyunStories,
   },
   {
@@ -293,6 +352,7 @@ export const newsSources: NewsSource[] = [
     name: 'QQ音乐',
     description: '巅峰榜',
     color: '#31c27c',
+    category: 'music',
     fetchStories: fetchQQMusicStories,
   },
 ]
