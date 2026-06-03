@@ -304,7 +304,7 @@ export const newsSources: NewsSource[] = [
     name: '知乎热榜',
     description: '实时热议话题',
     color: '#0066ff',
-    category: 'tech',
+    category: 'entertainment',
     fetchStories: fetchZhihuStories,
   },
   {
