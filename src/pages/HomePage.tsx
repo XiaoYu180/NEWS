@@ -108,6 +108,7 @@ function SourceVisibilityControl({
   onShowAll: () => void
 }) {
   const [open, setOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState<Set<CategoryId>>(new Set())
   const ref = useRef<HTMLDivElement>(null)
   const selectedCount = visibleSourceIds.length
 
@@ -127,6 +128,15 @@ function SourceVisibilityControl({
     return map
   }, [])
 
+  const toggleCollapse = (catId: CategoryId) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(catId)) next.delete(catId)
+      else next.add(catId)
+      return next
+    })
+  }
+
   return (
     <div ref={ref} className="source-select relative font-mono text-xs">
       <button
@@ -143,59 +153,76 @@ function SourceVisibilityControl({
       </button>
 
       {open && (
-        <div className="mecha-panel source-select-menu absolute right-0 top-full z-40 mt-2 p-3" style={{ minWidth: 220 }}>
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+        <div className="mecha-panel source-select-menu absolute right-0 top-full z-40 mt-2 p-3">
+          <div className="source-select-header mb-3 flex items-center justify-between gap-3">
+            <span className="source-select-title whitespace-nowrap">
               选择要展示的卡片
             </span>
             <button type="button" className="source-reset-btn" onClick={onShowAll}>
               全部
             </button>
           </div>
-          {CATEGORIES.map((cat) => {
-            const sources = sourcesByCategory.get(cat.id) ?? []
-            const allVisible = sources.every((s) => visibleSourceIds.includes(s.id))
+          <div className="source-category-list">
+            {CATEGORIES.map((cat) => {
+              const sources = sourcesByCategory.get(cat.id) ?? []
+              const visibleCount = sources.filter((s) => visibleSourceIds.includes(s.id)).length
+              const allVisible = visibleCount === sources.length
+              const noneVisible = visibleCount === 0
+              const isCollapsed = collapsed.has(cat.id)
+              const checkboxIcon = allVisible ? '☑' : noneVisible ? '☐' : '◐'
 
-            return (
-              <div key={cat.id} className="mb-2">
-                <div className="mb-1 flex items-center justify-between border-t pt-2" style={{ borderColor: 'var(--border)' }}>
-                  <span className="text-[11px] font-bold" style={{ color: 'var(--text)' }}>
-                    {cat.name}
-                  </span>
-                  <button
-                    type="button"
-                    className="source-reset-btn text-[10px]"
-                    onClick={() => {
-                      const ids = sources.map((s) => s.id)
-                      onToggleBatch(ids, !allVisible)
-                    }}
+              return (
+                <div key={cat.id} className="source-category-block">
+                  <div
+                    className="source-category-row"
+                    onClick={() => toggleCollapse(cat.id)}
                   >
-                    {allVisible ? '全不选' : '全选'}
-                  </button>
+                    <span
+                      className={`source-category-check ${allVisible ? 'source-category-check-active' : ''} ${!allVisible && !noneVisible ? 'source-category-check-mixed' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const ids = sources.map((s) => s.id)
+                        onToggleBatch(ids, !allVisible)
+                      }}
+                    >
+                      {checkboxIcon}
+                    </span>
+                    <span className="source-category-name">
+                      {cat.name}
+                    </span>
+                    <span className="source-category-count">
+                      {visibleCount}/{sources.length}
+                    </span>
+                    <span className={`source-category-arrow ${isCollapsed ? 'source-category-arrow-collapsed' : ''}`}>
+                      ▾
+                    </span>
+                  </div>
+                  {!isCollapsed && (
+                    <div className="source-option-list">
+                      {sources.map((source) => {
+                        const active = visibleSourceIds.includes(source.id)
+                        return (
+                          <button
+                            key={source.id}
+                            type="button"
+                            onClick={() => onToggle(source.id)}
+                            className={`source-option ${active ? 'source-option-active' : ''}`}
+                            aria-pressed={active}
+                          >
+                            <span className="source-checkbox" aria-hidden="true">
+                              {active ? '☑' : '☐'}
+                            </span>
+                            <span className="source-toggle-dot shrink-0" style={{ background: source.color }} />
+                            <span>{source.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  {sources.map((source) => {
-                    const active = visibleSourceIds.includes(source.id)
-                    return (
-                      <button
-                        key={source.id}
-                        type="button"
-                        onClick={() => onToggle(source.id)}
-                        className={`source-option ${active ? 'source-option-active' : ''}`}
-                        aria-pressed={active}
-                      >
-                        <span className="source-checkbox" aria-hidden="true">
-                          {active ? '✓' : ''}
-                        </span>
-                        <span className="source-toggle-dot" style={{ background: source.color }} />
-                        <span>{source.name}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       )}
     </div>
