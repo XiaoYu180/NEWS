@@ -236,8 +236,11 @@ async function fetchWallstreetcnStories(): Promise<UnifiedStory[]> {
   if (!res.ok) throw new Error('获取华尔街见闻失败')
   const json = await res.json()
   if (json.code !== 20000) throw new Error('华尔街见闻数据异常')
-  const dayItems = json.data?.day_items ?? []
-  return dayItems.slice(0, 30).map((item: any) => ({
+  const hotItems = [...(json.data?.day_items ?? []), ...(json.data?.week_items ?? [])]
+  const uniqueItems = hotItems.filter(
+    (item: any, index: number, items: any[]) => items.findIndex((candidate: any) => candidate.id === item.id) === index,
+  )
+  return uniqueItems.slice(0, 30).map((item: any) => ({
     id: String(item.id),
     title: item.title,
     url: item.uri || `https://wallstreetcn.com/articles/${item.id}`,
@@ -250,7 +253,7 @@ async function fetchWallstreetcnStories(): Promise<UnifiedStory[]> {
 }
 
 async function fetchYicaiStories(): Promise<UnifiedStory[]> {
-  const res = await fetch('/api/yicai/api/ajax/getlistbycid?cid=48')
+  const res = await fetch('/api/yicai/api/ajax/getlistbycid?cid=48&pagesize=30')
   if (!res.ok) throw new Error('获取第一财经失败')
   const json = await res.json()
   if (!Array.isArray(json) || json.length === 0) throw new Error('第一财经数据异常')
