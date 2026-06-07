@@ -59,6 +59,48 @@ interface WangyiyunTrack {
   album: { name: string }
 }
 
+function parseYicaiTime(text: string): number {
+  if (!text) return Math.floor(Date.now() / 1000)
+  if (text.includes('分钟前') || text.includes('小时前') || text.includes('昨天')) {
+    return Math.floor(Date.now() / 1000)
+  }
+
+  const match = text.match(/(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/)
+  if (!match) return Math.floor(Date.now() / 1000)
+
+  const [, month, day, hour, minute] = match
+  return Math.floor(
+    new Date(new Date().getFullYear(), Number(month) - 1, Number(day), Number(hour), Number(minute)).getTime() / 1000,
+  )
+}
+
+function parseYicaiHotStories(html: string): UnifiedStory[] {
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('#hotest > a[href]'))
+
+  return anchors.slice(0, 30).map((anchor, index) => {
+    const href = anchor.getAttribute('href') ?? ''
+    const id = href.match(/\/(?:vip\/)?(?:news|video)\/(\d+)\.html/)?.[1] ?? `${href}_${index}`
+    const title = anchor.querySelector('h2')?.textContent?.trim() ?? ''
+    const score = Number(anchor.querySelector('.news_hot')?.textContent?.trim() ?? 0)
+    const comments = Number(anchor.querySelector('.news_comment')?.textContent?.trim() ?? 0)
+    const metaTexts = Array.from(anchor.querySelectorAll('.rightspan span')).map((span) => span.textContent?.trim() ?? '')
+    const timeText = metaTexts.find((text) => text && !/^\d+$/.test(text)) ?? ''
+    const url = href.startsWith('http') ? href : `https://www.yicai.com${href}`
+
+    return {
+      id,
+      title,
+      url,
+      detailUrl: url,
+      by: '热榜',
+      score,
+      comments,
+      time: parseYicaiTime(timeText),
+    }
+  }).filter((story) => story.title && story.url)
+}
+
 // --- fetch functions ---
 
 async function fetchDouyinStories(): Promise<UnifiedStory[]> {
@@ -253,20 +295,12 @@ async function fetchWallstreetcnStories(): Promise<UnifiedStory[]> {
 }
 
 async function fetchYicaiStories(): Promise<UnifiedStory[]> {
-  const res = await fetch('/api/yicai/api/ajax/getlistbycid?cid=48&pagesize=30')
+  const res = await fetch('/api/yicai/')
   if (!res.ok) throw new Error('获取第一财经失败')
-  const json = await res.json()
-  if (!Array.isArray(json) || json.length === 0) throw new Error('第一财经数据异常')
-  return json.slice(0, 30).map((item: any) => ({
-    id: String(item.NewsID),
-    title: item.NewsTitle,
-    url: item.ShareUrl || `https://www.yicai.com${item.url}`,
-    detailUrl: item.ShareUrl || `https://www.yicai.com${item.url}`,
-    by: item.NewsAuthor || '一财',
-    score: item.NewsHot ?? 0,
-    comments: item.CommentCount ?? 0,
-    time: Math.floor(new Date(item.CreateDate).getTime() / 1000),
-  }))
+  const html = await res.text()
+  const stories = parseYicaiHotStories(html)
+  if (stories.length === 0) throw new Error('第一财经热榜解析失败')
+  return stories
 }
 
 export const newsSources: NewsSource[] = [
