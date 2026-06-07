@@ -66,6 +66,19 @@ export default defineConfig({
           })
         },
       },
+      '/api/github': {
+        target: 'https://github.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/github/, ''),
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            proxyReq.setHeader('Accept', 'text/html')
+            proxyReq.setHeader('Referer', 'https://github.com/trending')
+          })
+        },
+      },
       '/api/aihot': {
         target: 'https://aihot.virxact.com',
         changeOrigin: true,

@@ -8,6 +8,7 @@
     { "source": "/api/wangyiyun/(.*)", "destination": "/api/wangyiyun?__path=$1" },
     { "source": "/api/wallstreetcn/(.*)", "destination": "/api/wallstreetcn?__path=$1" },
     { "source": "/api/yicai/(.*)", "destination": "/api/yicai?__path=$1" },
+    { "source": "/api/github/(.*)", "destination": "/api/github?__path=$1" },
 
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

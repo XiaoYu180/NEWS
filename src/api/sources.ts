@@ -9,17 +9,6 @@ interface DouyinItem {
   url: string
 }
 
-interface GithubRepo {
-  id: number
-  full_name: string
-  html_url: string
-  description: string | null
-  stargazers_count: number
-  forks_count: number
-  language: string | null
-  owner: { login: string }
-}
-
 interface AIHotItem {
   id: string
   title: string
@@ -99,6 +88,41 @@ function parseYicaiHotStories(html: string): UnifiedStory[] {
       time: parseYicaiTime(timeText),
     }
   }).filter((story) => story.title && story.url)
+}
+
+function parseCount(text: string): number {
+  const cleaned = text.replace(/[,+]/g, '').trim()
+  const value = Number(cleaned)
+  return Number.isFinite(value) ? value : 0
+}
+
+function parseGithubTrendingStories(html: string): UnifiedStory[] {
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const articles = Array.from(document.querySelectorAll<HTMLElement>('article.Box-row'))
+
+  return articles.slice(0, 30).map((article) => {
+    const anchor = article.querySelector<HTMLAnchorElement>('h2 a[href^="/"]')
+    const href = anchor?.getAttribute('href') ?? ''
+    const repoPath = href.replace(/^\//, '')
+    const title = anchor?.textContent?.replace(/\s+/g, '') ?? repoPath
+    const language = article.querySelector('[itemprop="programmingLanguage"]')?.textContent?.trim() || 'Code'
+    const weeklyStars = parseCount(article.textContent?.match(/([\d,]+)\s+stars?\s+this week/i)?.[1] ?? '0')
+    const forkAnchors = Array.from(article.querySelectorAll<HTMLAnchorElement>('a[href$="/forks"]'))
+    const forkAnchor = forkAnchors[forkAnchors.length - 1]
+    const forks = parseCount(forkAnchor?.textContent ?? '0')
+    const url = `https://github.com/${repoPath}`
+
+    return {
+      id: repoPath,
+      title,
+      url,
+      detailUrl: url,
+      by: language,
+      score: weeklyStars,
+      comments: forks,
+      time: Math.floor(Date.now() / 1000),
+    }
+  }).filter((story) => story.id && story.score > 0)
 }
 
 // --- fetch functions ---
@@ -194,20 +218,12 @@ async function fetchBilibiliStories(): Promise<UnifiedStory[]> {
 }
 
 async function fetchGithubStories(): Promise<UnifiedStory[]> {
-  const res = await fetch('https://api.github.com/search/repositories?q=stars:%3E1000&sort=stars&order=desc&per_page=30')
+  const res = await fetch('/api/github/trending?since=weekly')
   if (!res.ok) throw new Error('获取 GitHub 热榜失败')
-  const json = await res.json()
-  const items: GithubRepo[] = json.items ?? []
-  return items.map((item) => ({
-    id: String(item.id),
-    title: item.full_name,
-    url: item.html_url,
-    detailUrl: item.html_url,
-    by: item.language || 'Code',
-    score: item.stargazers_count,
-    comments: item.forks_count,
-    time: 0,
-  }))
+  const html = await res.text()
+  const stories = parseGithubTrendingStories(html)
+  if (stories.length === 0) throw new Error('GitHub weekly trending 解析失败')
+  return stories
 }
 
 async function fetchQQMusicStories(): Promise<UnifiedStory[]> {
@@ -347,7 +363,7 @@ export const newsSources: NewsSource[] = [
   {
     id: 'github',
     name: 'GitHub 热榜',
-    description: '热门开源项目',
+    description: '近 7 日 Star 增长',
     color: '#6e7681',
     category: 'tech',
     fetchStories: fetchGithubStories,
