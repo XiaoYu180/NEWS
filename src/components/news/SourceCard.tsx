@@ -130,12 +130,6 @@ function SourceLogo({ sourceId, size }: { sourceId: string; size?: number }) {
   }
 }
 
-function formatCount(n: number): string {
-  if (n >= 10000_0000) return (n / 10000_0000).toFixed(1) + '亿'
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
-  return String(n)
-}
-
 function CompactStory({ story, index }: { story: UnifiedStory; index: number }) {
   const rank = index + 1
   const isExternal = story.detailUrl.startsWith('http')
@@ -152,9 +146,7 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
   return (
     <li className="intel-row">
       <div className="flex items-start gap-3">
-        <span
-          className={`intel-rank mt-0.5 shrink-0 ${rank <= 3 ? 'intel-rank-hot' : ''}`}
-        >
+        <span className="intel-rank mt-0.5 shrink-0">
           {rank}
         </span>
         <div className="min-w-0 flex-1">
@@ -169,21 +161,6 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
           >
             {story.title}
           </a>
-          <div className="intel-meta">
-            <span className="intel-metric">访问 {formatCount(story.score)}</span>
-            {story.by && (
-              story.by === '热' ? (
-                <svg className="inline-block" width="12" height="12" viewBox="0 0 24 24" fill="#ff2d55">
-                  <path d="M12 23c-2.8 0-5.5-.8-7.8-2.2C2.3 19.4 1 17.2 1 14.8 1 9.7 5.6 4.2 10.5 0c.5-.4 1.3-.2 1.5.4.7 2.2 2.1 5.2 4.3 7.6 1.8 2 4.1 3.4 5.6 4.1.5.3.7 1 .4 1.5-1.2 2-1.8 4.2-1.8 6.5C20.5 23 12 23 12 23z"/>
-                </svg>
-              ) : story.by === '新' ? (
-                <span className="intel-badge-new font-mono">NEW</span>
-              ) : (
-                <span>{story.by}</span>
-              )
-            )}
-            {story.comments > 0 && <span>评论:{formatCount(story.comments)}</span>}
-          </div>
         </div>
       </div>
       {tip &&
@@ -210,10 +187,10 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
 
 function SourceCardSkeleton({ color }: { color: string }) {
   return (
-    <div className="mecha-panel intel-card p-5 flex h-full flex-col">
-      <div className="mb-5 flex items-center gap-3">
+    <div className="mecha-panel intel-card p-3 flex h-full flex-col">
+      <div className="mb-2 flex items-center gap-2">
         <span className="status-dot" style={{ color }} />
-        <Skeleton className="h-5 w-28" />
+        <Skeleton className="h-4 w-20" />
       </div>
       <div className="intel-list max-h-[500px] overflow-y-auto pr-1">
         <div className="space-y-4">
@@ -235,22 +212,22 @@ export function SourceCard({ source }: { source: NewsSource }) {
   if (isLoading) return <SourceCardSkeleton color={source.color} />
 
   return (
-    <div className="mecha-panel intel-card p-5 flex h-full flex-col">
-      <div className="mb-5 flex items-start gap-3">
+    <div className="mecha-panel intel-card p-3 flex h-full flex-col">
+      <div className="mb-2 flex items-center gap-2">
         <span style={{ color: source.color }}>
-          <SourceLogo sourceId={source.id} size={22} />
+          <SourceLogo sourceId={source.id} size={18} />
         </span>
-        <div className="min-w-0">
-          <h2 className="font-display text-base font-semibold" style={{ color: 'var(--text)' }}>
+        <div className="flex min-w-0 flex-1 items-baseline gap-2">
+          <h2 className="shrink-0 font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
             {source.name}
           </h2>
-          <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          <span className="truncate font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>
             {source.description}
           </span>
         </div>
       </div>
 
-      <div className="mecha-divider mb-4" />
+      <div className="mecha-divider mb-2" />
 
       {isError ? (
         <ErrorMessage message={error?.message ?? '连接失败'} />

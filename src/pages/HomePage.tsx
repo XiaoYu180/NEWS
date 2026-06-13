@@ -438,6 +438,7 @@ export function HomePage() {
   const [sourceOrderIds, setSourceOrderIds] = useState(getInitialSourceOrderIds)
   const [draggingSourceId, setDraggingSourceId] = useState<string | null>(null)
   const [dragOverSourceId, setDragOverSourceId] = useState<string | null>(null)
+  const [dragPreview, setDragPreview] = useState<{ sourceId: string; x: number; y: number; width: number } | null>(null)
 
   const handleColumnChange = (value: number) => {
     const next = clampColumnCount(value)
@@ -478,6 +479,18 @@ export function HomePage() {
     setDraggingSourceId(sourceId)
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('text/plain', sourceId)
+
+    const rect = event.currentTarget.getBoundingClientRect()
+    setDragPreview({ sourceId, x: event.clientX, y: event.clientY, width: rect.width })
+
+    const img = new Image()
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+    event.dataTransfer.setDragImage(img, 0, 0)
+  }
+
+  const handleDrag = (event: DragEvent<HTMLDivElement>) => {
+    if (event.clientX === 0 && event.clientY === 0) return
+    setDragPreview((current) => current ? { ...current, x: event.clientX, y: event.clientY } : current)
   }
 
   const handleDrop = (event: DragEvent<HTMLDivElement>, targetId: string) => {
@@ -489,6 +502,7 @@ export function HomePage() {
     updateSourceOrderIds(moveSourceBefore(sourceOrderIds, draggedId, targetId))
     setDraggingSourceId(null)
     setDragOverSourceId(null)
+    setDragPreview(null)
   }
 
   const sourceById = useMemo(
@@ -503,6 +517,7 @@ export function HomePage() {
   const gridStyle = {
     '--news-grid-columns': `repeat(${columnCount}, minmax(0, 1fr))`,
   } as CSSProperties
+  const draggingSource = dragPreview ? sourceById.get(dragPreview.sourceId) : undefined
 
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
@@ -571,9 +586,11 @@ export function HomePage() {
               ].filter(Boolean).join(' ')}
               draggable
               onDragStart={(event) => handleDragStart(event, source.id)}
+              onDrag={handleDrag}
               onDragEnd={() => {
                 setDraggingSourceId(null)
                 setDragOverSourceId(null)
+                setDragPreview(null)
               }}
               onDragEnter={() => {
                 if (draggingSourceId && draggingSourceId !== source.id) {
@@ -620,6 +637,29 @@ export function HomePage() {
             }}
           >
             {quote.text}
+          </div>,
+          document.body,
+        )}
+
+      {dragPreview && draggingSource &&
+        createPortal(
+          <div
+            className="drag-preview-card"
+            style={{
+              left: dragPreview.x,
+              top: dragPreview.y,
+              width: Math.min(dragPreview.width, 360),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <span style={{ color: draggingSource.color }}>
+                <span className="status-dot" />
+              </span>
+              <span className="font-semibold">{draggingSource.name}</span>
+            </div>
+            <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+              拖动到目标位置后松开
+            </div>
           </div>,
           document.body,
         )}

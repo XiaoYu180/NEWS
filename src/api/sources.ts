@@ -96,6 +96,17 @@ function parseCount(text: string): number {
   return Number.isFinite(value) ? value : 0
 }
 
+async function fetchWithTimeout(input: RequestInfo | URL, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    return await fetch(input, { signal: controller.signal })
+  } finally {
+    window.clearTimeout(timeoutId)
+  }
+}
+
 function parseGithubTrendingStories(html: string): UnifiedStory[] {
   const document = new DOMParser().parseFromString(html, 'text/html')
   const articles = Array.from(document.querySelectorAll<HTMLElement>('article.Box-row'))
@@ -218,7 +229,16 @@ async function fetchBilibiliStories(): Promise<UnifiedStory[]> {
 }
 
 async function fetchGithubStories(): Promise<UnifiedStory[]> {
-  const res = await fetch('/api/github/trending?since=weekly')
+  let res: Response
+  try {
+    res = await fetchWithTimeout('/api/github/trending?since=weekly', 8000)
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('获取 GitHub 热榜超时')
+    }
+    throw error
+  }
+
   if (!res.ok) throw new Error('获取 GitHub 热榜失败')
   const html = await res.text()
   const stories = parseGithubTrendingStories(html)
