@@ -65,21 +65,33 @@ function getInitialVisibleSourceIds(): string[] {
   }
 }
 
+function getDefaultSourceOrderIds(): string[] {
+  return [...newsSources]
+    .sort((a, b) => {
+      if (a.category === b.category) return 0
+      if (a.category === 'music') return 1
+      if (b.category === 'music') return -1
+      return 0
+    })
+    .map((source) => source.id)
+}
+
 function getInitialSourceOrderIds(): string[] {
   const allIds = newsSources.map((source) => source.id)
+  const defaultIds = getDefaultSourceOrderIds()
   const stored = localStorage.getItem(SOURCE_ORDER_KEY)
 
-  if (!stored) return allIds
+  if (!stored) return defaultIds
 
   try {
     const parsed = JSON.parse(stored)
-    if (!Array.isArray(parsed)) return allIds
+    if (!Array.isArray(parsed)) return defaultIds
 
     const validIds = parsed.filter((id): id is string => allIds.includes(id))
-    const missingIds = allIds.filter((id) => !validIds.includes(id))
+    const missingIds = defaultIds.filter((id) => !validIds.includes(id))
     return [...validIds, ...missingIds]
   } catch {
-    return allIds
+    return defaultIds
   }
 }
 
