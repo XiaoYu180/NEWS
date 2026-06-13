@@ -522,8 +522,7 @@ export function HomePage() {
               <span style={{ color: 'var(--text)' }}>正在获取每日一言...</span>
             ) : (
               <>
-                <span className="text-lg">💬</span>
-                <span style={{ color: 'var(--text)' }}>每日一言</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>每日一言</span>
                 <span
                   className="font-bold max-w-xs truncate cursor-default"
                   onMouseEnter={showQuoteTip}
@@ -551,7 +550,7 @@ export function HomePage() {
             className="mecha-btn text-xs"
             title={dark ? '切换日间模式' : '切换深夜模式'}
           >
-            {dark ? '☀' : '☾'}
+            {dark ? '日间' : '夜间'}
           </button>
         </div>
       </div>

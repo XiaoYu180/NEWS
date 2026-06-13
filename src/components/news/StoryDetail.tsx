@@ -30,7 +30,7 @@ export function StoryDetail({ id }: Props) {
   return (
     <article>
       <div className="mecha-panel p-6">
-        <h1 className="font-display text-lg font-bold uppercase tracking-wider" style={{ color: 'var(--text)' }}>
+        <h1 className="font-display text-xl font-semibold leading-snug" style={{ color: 'var(--text)' }}>
           {story.title}
         </h1>
 
@@ -61,7 +61,7 @@ export function StoryDetail({ id }: Props) {
       </div>
 
       <section className="mt-8">
-        <h2 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text)' }}>
+        <h2 className="mb-4 font-display text-base font-semibold" style={{ color: 'var(--text)' }}>
           <span style={{ color: 'var(--accent-green)' }}>{'>'}</span> 评论区
         </h2>
         {story.kids && story.kids.length > 0 ? (

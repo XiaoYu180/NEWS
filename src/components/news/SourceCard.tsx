@@ -241,7 +241,7 @@ export function SourceCard({ source }: { source: NewsSource }) {
           <SourceLogo sourceId={source.id} size={22} />
         </span>
         <div className="min-w-0">
-          <h2 className="font-display text-base font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>
+          <h2 className="font-display text-base font-semibold" style={{ color: 'var(--text)' }}>
             {source.name}
           </h2>
           <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>

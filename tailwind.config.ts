@@ -6,8 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        mono: ['Courier New', 'Courier', 'monospace'],
-        display: ['Times New Roman', 'Times', 'serif'],
+        mono: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
     },
   },
