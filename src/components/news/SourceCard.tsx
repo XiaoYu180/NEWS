@@ -135,13 +135,31 @@ function isMobileClient(): boolean {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
 }
 
+function isAndroidClient(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /Android/i.test(navigator.userAgent)
+}
+
+function extractBvid(url: string): string | null {
+  return url.match(/BV[0-9A-Za-z]+/)?.[0] ?? null
+}
+
 function getMobileAppUrl(sourceId: string, story: UnifiedStory): string | null {
   if (sourceId === 'douyin') {
-    return `snssdk1128://search?keyword=${encodeURIComponent(story.title)}`
+    const keyword = encodeURIComponent(story.title)
+    if (isAndroidClient()) {
+      return `intent://search?keyword=${keyword}#Intent;scheme=snssdk1128;package=com.ss.android.ugc.aweme;S.browser_fallback_url=${encodeURIComponent(story.detailUrl)};end`
+    }
+    return `snssdk1128://search?keyword=${keyword}`
   }
 
   if (sourceId === 'bilibili') {
-    return `bilibili://video/${story.id}`
+    const bvid = extractBvid(story.detailUrl)
+    if (!bvid) return null
+    if (isAndroidClient()) {
+      return `intent://video/${bvid}#Intent;scheme=bilibili;package=tv.danmaku.bili;S.browser_fallback_url=${encodeURIComponent(story.detailUrl)};end`
+    }
+    return `bilibili://video/${bvid}`
   }
 
   return null
@@ -169,7 +187,7 @@ function CompactStory({ story, index, sourceId }: { story: UnifiedStory; index: 
       return
     }
 
-    window.open(story.detailUrl, '_blank', 'noopener,noreferrer')
+    window.location.href = story.detailUrl
   }, [sourceId, story])
 
   return (
