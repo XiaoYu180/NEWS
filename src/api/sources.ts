@@ -122,6 +122,23 @@ async function fetchWithTimeout(input: RequestInfo | URL, timeoutMs: number): Pr
   }
 }
 
+function isMobileClient(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+}
+
+function normalizeBaiduUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname === 'm.baidu.com' && !isMobileClient()) {
+      parsed.hostname = 'www.baidu.com'
+    }
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
 function parseGithubTrendingStories(html: string): UnifiedStory[] {
   const document = new DOMParser().parseFromString(html, 'text/html')
   const articles = Array.from(document.querySelectorAll<HTMLElement>('article.Box-row'))
@@ -195,16 +212,19 @@ async function fetchBaiduStories(): Promise<UnifiedStory[]> {
   const json = await res.json()
   if (json.code !== 200 || !json.data?.list) throw new Error('百度数据异常')
   const items: DouyinItem[] = json.data.list.slice(0, 30)
-  return items.map((item) => ({
-    id: String(item.rank),
-    title: item.title,
-    url: item.url,
-    detailUrl: item.url,
-    by: item.label || '热',
-    score: item.hot_value,
-    comments: 0,
-    time: Math.floor(Date.now() / 1000),
-  }))
+  return items.map((item) => {
+    const url = normalizeBaiduUrl(item.url)
+    return {
+      id: String(item.rank),
+      title: item.title,
+      url,
+      detailUrl: url,
+      by: item.label || '热',
+      score: item.hot_value,
+      comments: 0,
+      time: Math.floor(Date.now() / 1000),
+    }
+  })
 }
 
 async function fetchZhihuStories(): Promise<UnifiedStory[]> {

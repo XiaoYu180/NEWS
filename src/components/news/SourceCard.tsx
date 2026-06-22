@@ -130,7 +130,24 @@ function SourceLogo({ sourceId, size }: { sourceId: string; size?: number }) {
   }
 }
 
-function CompactStory({ story, index }: { story: UnifiedStory; index: number }) {
+function isMobileClient(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+}
+
+function getMobileAppUrl(sourceId: string, story: UnifiedStory): string | null {
+  if (sourceId === 'douyin') {
+    return `snssdk1128://search?keyword=${encodeURIComponent(story.title)}`
+  }
+
+  if (sourceId === 'bilibili') {
+    return `bilibili://video/${story.id}`
+  }
+
+  return null
+}
+
+function CompactStory({ story, index, sourceId }: { story: UnifiedStory; index: number; sourceId: string }) {
   const rank = index + 1
   const isExternal = story.detailUrl.startsWith('http')
   const [tip, setTip] = useState<{ x: number; y: number } | null>(null)
@@ -142,6 +159,18 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
     setTip((prev) => (prev ? { x: e.clientX, y: e.clientY } : null))
   }, [])
   const hideTip = useCallback(() => setTip(null), [])
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const appUrl = getMobileAppUrl(sourceId, story)
+    if (!appUrl || !isMobileClient()) return
+
+    e.preventDefault()
+    if (window.confirm('是否打开手机端 App 查看？')) {
+      window.location.href = appUrl
+      return
+    }
+
+    window.open(story.detailUrl, '_blank', 'noopener,noreferrer')
+  }, [sourceId, story])
 
   return (
     <li className="intel-row">
@@ -158,6 +187,7 @@ function CompactStory({ story, index }: { story: UnifiedStory; index: number }) 
             onMouseEnter={showTip}
             onMouseMove={moveTip}
             onMouseLeave={hideTip}
+            onClick={handleClick}
           >
             {story.title}
           </a>
@@ -237,7 +267,7 @@ export function SourceCard({ source }: { source: NewsSource }) {
         <div className="intel-list max-h-[500px] min-h-0 flex-1 overflow-y-auto pr-1">
           <ul className="space-y-3.5">
             {data.map((story, i) => (
-              <CompactStory key={`${source.id}-${story.id}`} story={story} index={i} />
+              <CompactStory key={`${source.id}-${story.id}`} story={story} index={i} sourceId={source.id} />
             ))}
           </ul>
         </div>
