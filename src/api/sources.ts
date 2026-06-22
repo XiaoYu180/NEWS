@@ -48,6 +48,21 @@ interface WangyiyunTrack {
   album: { name: string }
 }
 
+interface ZhihuRankItem {
+  question: {
+    id: string | number
+    title: string
+    url: string
+    updated_time?: number
+    topics?: { name: string }[]
+  }
+  reaction?: {
+    new_pv?: number
+    pv?: number
+    answer_num?: number
+  }
+}
+
 function parseYicaiTime(text: string): number {
   if (!text) return Math.floor(Date.now() / 1000)
   if (text.includes('分钟前') || text.includes('小时前') || text.includes('昨天')) {
@@ -196,6 +211,24 @@ async function fetchZhihuStories(): Promise<UnifiedStory[]> {
   const res = await fetch('/api/zhihu')
   if (!res.ok) throw new Error('获取知乎热榜失败')
   const json = await res.json()
+
+  if (Array.isArray(json.data)) {
+    const items: ZhihuRankItem[] = json.data.slice(0, 30)
+    return items.map((item, i) => {
+      const question = item.question
+      return {
+        id: String(question.id ?? i),
+        title: question.title,
+        url: question.url,
+        detailUrl: question.url,
+        by: question.topics?.[0]?.name || '热榜',
+        score: item.reaction?.new_pv ?? item.reaction?.pv ?? 0,
+        comments: item.reaction?.answer_num ?? 0,
+        time: question.updated_time ?? Math.floor(Date.now() / 1000),
+      }
+    }).filter((story) => story.title && story.url)
+  }
+
   if (json.code !== 200 || !json.data?.list) throw new Error('知乎数据异常')
   const items: DouyinItem[] = json.data.list.slice(0, 30)
   return items.map((item, i) => ({

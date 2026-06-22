@@ -37,10 +37,17 @@ export default defineConfig({
         },
       },
       '/api/zhihu': {
-        target: 'https://api.xunjinlu.fun',
+        target: 'https://www.zhihu.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/zhihu/, '/api/rebang/zhihu.php'),
+        rewrite: (path) => path.replace(/^\/api\/zhihu/, '/api/v4/creators/rank/hot?domain=0'),
         secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            proxyReq.setHeader('Accept', 'application/json')
+            proxyReq.setHeader('Referer', 'https://www.zhihu.com/')
+          })
+        },
       },
       '/api/wallstreetcn': {
         target: 'https://api.wallstreetcn.com',
