@@ -50,7 +50,7 @@ export default defineConfig({
         },
       },
       '/api/wallstreetcn': {
-        target: 'https://api.wallstreetcn.com',
+        target: 'https://api-one.wallstcn.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/wallstreetcn/, ''),
         secure: false,

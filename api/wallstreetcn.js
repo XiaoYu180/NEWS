@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     params.delete('__path')
     const qs = params.toString()
 
-    const r = await fetch(`https://api.wallstreetcn.com/${subpath}${qs ? '?' + qs : ''}`, {
+    const r = await fetch(`https://api-one.wallstcn.com/${subpath}${qs ? '?' + qs : ''}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         Accept: 'application/json',
